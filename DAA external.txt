@@ -1,0 +1,692 @@
+#HYBRID QUICKSORT#
+def hybrid_quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    elif len(arr) < 10:
+        return insertion_sort(arr)
+    else:
+        pivot = arr[len(arr)//2]
+        left = []
+        right = []
+        middle = []
+        for val in arr:
+            if val < pivot:
+                left.append(val)
+            elif val > pivot:
+                right.append(val)
+            else:
+                middle.append(val)
+        return hybrid_quicksort(left) + middle + hybrid_quicksort(right)
+
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        j = i - 1
+        key = arr[i]
+        while (j >= 0) and (arr[j] > key):
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = key
+    return arr
+
+# Example usage:
+values = ['a', 'b', '3', 'c', '2', 'd', '1']
+sorted_values = hybrid_quicksort(values)
+print(sorted_values)  # Output: ['1', '2', '3', 'a', 'b', 'c', 'd']
+
+# JOBSEQUENCING#
+
+def job_sequencing(deadlines, profits):
+    n = len(deadlines)
+    jobs = list(zip(deadlines, profits, range(1, n+1)))
+    print(jobs)
+    jobs.sort(reverse=True)
+    print(jobs)
+    
+    slots = [0] * max(deadlines)  # initialize the time slots
+    print(slots)
+    max_profit = 0
+    
+    for job in jobs:
+        d, p, idx = job
+        for i in range(d-1, -1, -1):
+            if slots[i] == 0:
+                slots[i] = idx
+                max_profit += p
+                print(">>>>>>",slots)
+                print(max_profit)
+                break
+                
+    return max_profit, sorted(slots)
+
+# profits=[int(i) for i in input().split()]
+# deadlines=[int(i) for i in input().split()]
+profits=[100,19,27,25,15]
+deadlines=[2,1,2,1,3]
+
+max_profit, job_sequence = job_sequencing(deadlines, profits)
+
+print("Maximum profit:", max_profit)
+print("Job sequence:", job_sequence)
+
+#KNAPSACK#
+
+
+def knapsack(w,weights,values):
+    ratios=[v/w for v,w in zip(values,weights)]
+    n=len(weights)
+    index=list(range(n))
+    index.sort(key=lambda i : ratios[i] ,reverse=True)
+    max_profit=0
+    fractions=[0]*n
+    for i in index:
+        if weights[i]<w:
+            max_profit+=values[i]
+            w-=weights[i]
+            fractions[i]=1
+        else:
+            fractions[i]=w/weights[i]
+            max_profit+=values[i]*fractions[i]
+            break
+    return max_profit
+weights=[int(i) for i in input("enter weights:").split(" ")]
+values=[int(i) for i in input("enter values:").split(" ")]
+w=int(input("enter capacity of bag:"))
+print("Maximum value of items taken",knapsack(w,weights,values))
+print("fractions taken:",fractions)
+
+#STRASSENS#
+
+multipy=0
+sub=0
+addd=0
+def strassen(A, B):
+    if len(A) == 1:
+      global multipy
+      multipy=multipy +1
+      return [[A[0][0] * B[0][0]]]
+    newSize=len(A)//2
+    a11=[[0 for i in range(newSize)] for j in range(newSize)]
+    a12=[[0 for i in range(newSize)] for j in range(newSize)]
+    a21=[[0 for i in range(newSize)] for j in range(newSize)]
+    a22=[[0 for i in range(newSize)] for j in range(newSize)]
+    b11=[[0 for i in range(newSize)] for j in range(newSize)]
+    b12=[[0 for i in range(newSize)] for j in range(newSize)]
+    b21=[[0 for i in range(newSize)] for j in range(newSize)]
+    b22=[[0 for i in range(newSize)] for j in range(newSize)]
+    for i in range(0, newSize): 
+        for j in range(0, newSize):
+            a11[i][j]=A[i][j]
+            a12[i][j]=A[i][j + newSize]
+            a21[i][j]=A[i + newSize][j]
+            a22[i][j]=A[i + newSize][j + newSize]
+            b11[i][j]=B[i][j]
+            b12[i][j]=B[i][j + newSize]
+            b21[i][j]=B[i + newSize][j]
+            b22[i][j]=B[i + newSize][j + newSize]
+    P1 = strassen(a11, subtract(b12, b22))
+    P2 = strassen(add(a11, a12), b22)
+    P3 = strassen(add(a21, a22), b11)
+    P4 = strassen(a22, subtract(b21, b11))
+    P5 = strassen(add(a11, a22), add(b11, b22))
+    P6 = strassen(subtract(a12, a22), add(b21, b22))
+    P7 = strassen(subtract(a11, a21), add(b11, b12))
+    c11 = add(subtract(add(P5, P4), P2), P6)
+    c12 = add(P1, P2)
+    c21 = add(P3, P4)
+    c22 = subtract(subtract(add(P5, P1), P3), P7)
+    C = [[0 for i in range(len(A))] for j in range(len(A))]
+    for i in range(0, newSize):
+        for j in range(0, newSize):
+            C[i][j] = c11[i][j]
+            C[i][j + newSize] = c12[i][j]
+            C[i + newSize][j] = c21[i][j]
+            C[i + newSize][j + newSize] = c22[i][j]
+    return C
+def add(A, B):
+  global addd
+  addd=addd+1
+  newSize = len(A)
+  C = [[0 for i in range(newSize)] for j in range(newSize)]
+  for i in range(newSize):
+      for j in range(newSize):
+          C[i][j] = A[i][j] + B[i][j]
+  return C
+def subtract(A, B):
+  global sub
+  sub=sub+1
+  newSize = len(A)
+  C = [[0 for i in range(newSize)] for j in range(newSize)]
+  for i in range(newSize):
+      for j in range(newSize):
+          C[i][j] = A[i][j] - B[i][j]
+  return C
+A =  [[1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8]]
+B = [[1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8],
+     [1,2,3,4,5,6,7,8]]
+C = strassen(A, B)
+for i in range(len(C)):
+    for j in range(len(C)):
+        print(C[i][j], end = " ")
+    print()
+print("NO OF MULTIPLICATIONS",multipy)
+print("NO OF ADDITIONS",addd)
+print("NO OF SUBRACTIONS",sub)
+
+#MERGESORT#
+
+def merge(m):
+    if len(m)>1:
+        mid=len(m)//2
+        l=m[:mid]
+        r=m[mid:]
+        merge(l)
+        merge(r)
+        b=c=d=0
+        while b<len(l) and c<len(r):
+            if l[b]<r[c]:
+                m[d]=l[b]
+                b+=1
+                d+=1
+            else:
+                m[d]=r[c]
+                d+=1
+                c+=1
+        while b<len(l):
+            m[d]=l[b]
+            b+=1
+            d+=1
+        while c<len(r):
+            m[d]=r[c]
+            d+=1
+            c+=1
+
+import random
+from time import time
+import matplotlib.pyplot as plt
+
+x=[]
+y=[]
+for i in range(10,10000,100):
+    x.append(i)
+    l=[]
+    f=open("Merge.txt","w")
+    for j in range(i):
+        k=random.randint(1,100)
+        f.write(str(k)+",")
+    f.close()
+    f=open("Merge.txt","r")
+    data=f.readlines()
+    for k in data:
+        data1=list(k.split(","))
+        for k1 in data1:
+            if len(k1)>0:
+                l.append(int(k1))
+    start=time()
+    merge(l)
+    end=time()
+    total=end-start
+    y.append(total)
+    print("start:",start)
+    print("end:",end)
+    print("total:",total)
+
+plt.plot(x,y)
+plt.show()
+
+############ kruskals ############
+
+class DisjointSet:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+    
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        
+        if self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        else:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += 1
+
+
+def kruskals_mst(graph):
+    num_vertices = len(graph)
+    mst = []
+    disjoint_set = DisjointSet(num_vertices)
+    
+    edges = []
+    for i in range(num_vertices):
+        for j in range(i + 1, num_vertices):
+            if graph[i][j] != 0:
+                edges.append((i, j, graph[i][j]))
+    edges.sort(key=lambda x: x[2])
+
+    for edge in edges:
+        u, v, weight = edge
+        if disjoint_set.find(u) != disjoint_set.find(v):
+            mst.append((u, v, weight))
+            disjoint_set.union(u, v)
+    
+    return mst
+graph = [
+    [0, 2, 0, 6, 0],
+    [2, 0, 3, 8, 5],
+    [0, 3, 0, 0, 7],
+    [6, 8, 0, 0, 9],
+    [0, 5, 7, 9, 0]
+]
+
+mst = kruskals_mst(graph)
+print(mst)
+
+
+#PRIMS#
+
+def prim(graph, start):
+    # Initialize the minimum spanning tree with the starting vertex
+    mst = []
+    visited = set([start])
+
+    while len(visited) < len(graph):
+        min_cost = float('inf')
+        min_edge = None
+
+        for x in visited:
+            for y, cost in graph[x].items():
+                if y not in visited and cost < min_cost:
+                    min_cost = cost
+                    min_edge = (x, y)
+
+        if min_edge is not None:
+            x, y = min_edge
+            visited.add(y)
+            mst.append((x, y, min_cost))
+
+    return mst
+graph = {
+  'A': {'B': 2, 'C': 3},
+  'B': {'A': 2, 'C': 1},
+  'C': {'A': 3, 'B': 1}
+}
+
+mst = prim(graph, 'A')
+print(mst)
+
+
+#OBST#
+
+def optCost(freq, i, j):     
+    if j < i:    
+        return 0
+    if j == i:     
+        return freq[i]    
+    fsum = Sum(freq, i, j)    
+    Min = 999999999999
+    for r in range(i, j + 1):
+        cost = (optCost(freq, i, r - 1) +
+                optCost(freq, r + 1, j))
+        if cost < Min:
+            Min = cost     
+    return Min + fsum
+def optimalSearchTree(keys, freq, n):     
+    return optCost(freq, 0, n - 1)
+def Sum(freq, i, j):
+    s = 0
+    for k in range(i, j + 1):
+        s += freq[k]
+    return s
+if __name__ == '__main__':
+    keys = [10, 12, 20]
+    freq = [34, 8, 50]
+    n = len(keys)
+    print("Cost of Optimal BST is",
+           optimalSearchTree(keys, freq, n))
+
+########### 0/1 KNAPSACK ############
+
+def knapsack(W, wt, val, n):
+    K = [[0 for x in range(W+1)] for x in range(n+1)]
+    for i in range(n+1):
+        for w in range(W+1):
+            if i==0 or w==0:
+                K[i][w] = 0
+            elif wt[i-1] <= w:
+                K[i][w] = max(val[i-1] + K[i-1][w-wt[i-1]], K[i-1][w])
+            else:
+                K[i][w] = K[i-1][w]
+    return K[n][W]
+val = [60, 100, 120]       
+wt = [10, 20, 30]
+W = 50
+n = len(val)
+print(knapsack(W, wt, val, n)) 
+
+
+#LCS#
+
+def lcs(X, Y):
+    # Find the lengths of the two strings
+    m = len(X)
+    n = len(Y)
+
+    # Initialize the memoization table
+    L = [[0 for j in range(n+1)] for i in range(m+1)]
+
+    # Build the memoization table in bottom-up manner
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if X[i-1] == Y[j-1]:
+                L[i][j] = L[i-1][j-1] + 1
+            else:
+                L[i][j] = max(L[i-1][j], L[i][j-1])
+
+    # Backtrack to find the LCS
+    lcs = ''
+    i = m
+    j = n
+    while i > 0 and j > 0:
+        if X[i-1] == Y[j-1]:
+            lcs = X[i-1] + lcs
+            i -= 1
+            j -= 1
+        elif L[i-1][j] > L[i][j-1]:
+            i -= 1
+        else:
+            j -= 1
+
+    return lcs
+X = "AGGTAB"
+Y = "GXTXAYB"
+
+###### Binary search ########
+def binary_search(arr,l,r,x):
+  if(l==r):
+      if(arr[l]==x):
+          return l
+      else:
+          return -1
+  else:
+      mid=(l+r)//2
+      if(arr[mid]==x):
+          return mid
+      elif(arr[mid]<x):
+          return binary_search(arr,mid+1,r,x)
+      elif(arr[mid]>x):
+          return binary_search(arr,l,mid-1,x)
+arr=list(map(int,input().split())) 
+x=int(input()) 
+l=0 
+r=len(arr)-1 
+binary_search(arr,l,r,x)
+
+###### Quick sort  #########
+def partition(arr,low,high):
+    i = ( low-1 )         
+    pivot = arr[high]    
+  
+    for j in range(low , high):
+        if   arr[j] <= pivot:
+            i = i+1
+            arr[i],arr[j] = arr[j],arr[i]
+  
+    arr[i+1],arr[high] = arr[high],arr[i+1]
+    return ( i+1 )
+
+def quickSort(arr,low,high):
+    if low < high:
+        pi = partition(arr,low,high)
+        quickSort(arr, low, pi-1)
+        quickSort(arr, pi+1, high)
+arr = [10, 7, 8, 9, 1, 5]
+n = len(arr)
+quickSort(arr,0,n-1)
+print ("Sorted array is:")
+for i in range(n):
+    print ("%d" %arr[i],end=" ")
+
+############ Linear search ##########
+def linear(arr,x):
+    for i in range(len(arr)):
+        if(arr[i]==x):
+            print("index is found at",i)
+            break
+    else:
+        print("index is not found")
+arr=list(map(int,input().split()))
+x=int(input())
+linear(arr,x)
+print()
+
+############ Normal Multiplication ############
+#matrix multiplication in python
+def matrix_multiplication(a,b):
+    c=[[0 for i in range(len(a))]for j in range(len(b[0]))]
+    for i in range(len(a)):
+        for j in range(len(b[0])):
+            for k in range(len(b)):
+                c[i][j]+=a[i][k]*b[k][j]
+    return c
+a=[[1,2,3],[4,5,6],[7,8,9]]
+b=[[1,2,3],[4,5,6],[7,8,9]]
+s=matrix_multiplication(a,b)
+for i in s:
+    print(i)
+
+###############  all pairs shortest path #############
+#all pair shortest path using floyd warshall algorithm in python
+def shortest_pair(graph):
+    dist = list(map(lambda i: list(map(lambda j: j, i)), graph))
+    n = len(graph)
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+    return dist
+graph =[[0,4,15],[8,0,2],[3,4,0]]
+shortest_pair(graph)
+
+
+############## Matrix Chain Multiplication #############################
+
+
+def matrix_chain_order(p):
+    n = len(p)
+    m = [[0 for x in range(n)] for x in range(n)]
+    s = [[0 for x in range(n)] for x in range(n)]
+    for i in range(1, n):
+        m[i][i] = 0
+    for L in range(2, n):
+        for i in range(1, n-L+1):
+            j = i+L-1
+            m[i][j] = float('inf')
+            for k in range(i, j):
+                q = m[i][k] + m[k+1][j] + p[i-1]*p[k]*p[j]
+                if q < m[i][j]:
+                    m[i][j] = q
+                    s[i][j] = k
+    return m, s
+p = [2,4,3,2,5]
+m, s = matrix_chain_order(p)
+print("Minimum cost of matrix chain multiplication:", q[1][len(p)-1])
+print("Minimum cost  table of matrix chain multiplication:")
+for i in range(len(p)):
+    print(m[i])
+print("paranthesis positions for optimal multiplication:")
+for i in range(len(p)):
+    print(s[i])
+#TRAVELLING SALES PERSON
+n = 4 
+
+
+dist = [[0, 0, 0, 0, 0], [0, 0, 10, 15, 20], [
+	0, 10, 0, 25, 25], [0, 15, 25, 0, 30], [0, 20, 25, 30, 0]]
+
+# memoization for top down recursion
+memo = [[-1]*(1 << (n+1)) for _ in range(n+1)]
+
+
+def fun(i, mask):
+	
+	if mask == ((1 << i) | 3):
+		return dist[1][i]
+
+
+	if memo[i][mask] != -1:
+		return memo[i][mask]
+
+	res = 10**9 
+
+
+	for j in range(1, n+1):
+		if (mask & (1 << j)) != 0 and j != i and j != 1:
+			res = min(res, fun(j, mask & (~(1 << i))) + dist[j][i])
+	memo[i][mask] = res 
+	return res
+
+
+ans = 10**9
+for i in range(1, n+1):
+	
+	ans = min(ans, fun(i, (1 << (n+1))-1) + dist[i][1])
+
+print("The cost of most efficient tour = " + str(ans))
+
+
+# Python program to solve N Queen
+# Problem using backtracking
+
+global N
+N = 4
+
+def printSolution(board):
+	for i in range(N):
+		for j in range(N):
+			print (board[i][j],end=' ')
+		print()
+
+
+def isSafe(board, row, col):
+
+
+	for i in range(col):
+		if board[row][i] == 1:
+			return False
+
+	for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	for i, j in zip(range(row, N, 1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	return True
+
+def solveNQUtil(board, col):
+
+	if col >= N:
+		return True
+
+	for i in range(N):
+
+		if isSafe(board, i, col):
+	
+			board[i][col] = 1
+
+			if solveNQUtil(board, col + 1) == True:
+				return True
+
+			board[i][col] = 0
+
+	return False
+
+
+def solveNQ():
+	board = [ [0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+			]
+
+	if solveNQUtil(board, 0) == False:
+		print ("Solution does not exist")
+		return False
+
+	printSolution(board)
+	return True
+
+
+solveNQ()
+#sum of subsets
+def isSubsetSum(set, n, sum) :
+	
+
+	if (sum == 0) :
+		return True
+	if (n == 0 and sum != 0) :
+		return False
+
+
+	if (set[n - 1] > sum) :
+		return isSubsetSum(set, n - 1, sum);
+
+
+	return isSubsetSum(set, n-1, sum) or isSubsetSum(set, n-1, sum-set[n-1])
+	
+
+set = [3, 34, 4, 12, 5, 2]
+sum = 9
+n = len(set)
+if (isSubsetSum(set, n, sum) == True) :
+	print("Found a subset with given sum")
+else :
+	print("No subset with given sum")
+# Python code with time complexity
+# O(2^n)to print all subsets whose
+# sum is equal to a given value
+from itertools import combinations
+
+
+def subsetSum(n, arr, x):
+	
+	# Iterating through all possible
+	# subsets of arr from lengths 0 to n:
+	for i in range(n+1):
+		for subset in combinations(arr, i):
+			
+			# printing the subset if its sum is x:
+			if sum(subset) == x:
+				print(list(subset))
+
+
+# Driver Code:
+n = 6
+arr = [10, 20, 25, 50, 70, 90]
+x = 80
+subsetSum(n, arr, x)
+
+
+
+
